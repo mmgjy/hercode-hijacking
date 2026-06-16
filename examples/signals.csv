@@ -1,0 +1,2 @@
+source,market,keyword,signal_name,signal_type,product_name,brand,price,rank,url,signal_score,confidence,notes,observed_at,artifact_type,artifact_uri,created_by_tool
+example_publication,US,ultralight hiking,Ultralight day-hike kits,web,Packable trail shell,Example Brand,,1,https://example.com/outdoor-signal,0.72,medium,Example only. Replace with real evidence.,2026-06-19,csv,examples/signals.csv,manual_example
