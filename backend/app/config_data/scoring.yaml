@@ -1,0 +1,80 @@
+# All tunable thresholds and weights for the pipeline. Versioned with the code
+# via the *_VERSION constants in the services.
+
+clustering:
+  similarity_threshold: 0.18  # cosine similarity for single-linkage clustering
+
+qualification:
+  min_signals: 3
+  min_independent_sources: 2
+  min_brands_products_markets: 2
+  max_independence_group_share: 0.60
+
+matching:
+  auto_approve_min: 85
+  review_min: 55
+  weights:
+    product_type: 0.35
+    feature: 0.30
+    material: 0.15
+    usage_customer: 0.10
+    keyword: 0.10
+
+coverage:
+  product_depth_saturation: 20
+  brand_diversity_saturation: 8
+  price_bands: [50, 100, 200]
+  weights:
+    retailer_presence: 0.20
+    product_depth: 0.25
+    brand_diversity: 0.20
+    price_band_coverage: 0.15
+    feature_coverage: 0.10
+    availability: 0.10
+
+opportunity:
+  weights:
+    momentum: 0.25
+    evidence_breadth: 0.20
+    transferability: 0.25
+    assortment_gap: 0.25
+    commercial_feasibility: 0.05
+
+commercial_feasibility:
+  simple_price_ceiling: 150
+  complex_price_floor: 400
+  complexity_terms:
+    - electronic
+    - tent
+    - stove
+    - battery
+
+decision:
+  reject_transferability_below: 40
+  reject_regulatory_below: 30
+  test_opportunity_min: 70
+  test_confidence_min: 60
+  test_transferability_min: 65
+  test_gap_min: 55
+  contact_opportunity_min: 65
+  contact_transferability_min: 60
+  contact_gap_min: 50
+  research_confidence_floor: 60
+
+experiment_plan:
+  unit_range: "40 to 60"
+  channel: "online"
+  duration: "6 to 8 weeks"
+  primary_metric: "sell-through"
+  suggested_success_threshold: "40%"
+  secondary_metrics:
+    - conversion
+    - onsite search activity
+    - returns
+    - customer feedback
+  stop_conditions:
+    - very low conversion
+    - high return rate
+    - regulatory concern
+    - product quality concern
+  assumption_notice: "Configurable test template, not a sales forecast."

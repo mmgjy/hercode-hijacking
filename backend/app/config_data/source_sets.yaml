@@ -1,0 +1,37 @@
+# Administrator-configured source sets.
+# Only hosts listed here (plus retailer domains in retailers.yaml) are fetchable
+# in live mode. Replay/demo modes use bundled fixtures and never hit the network.
+#
+# Replace the example.* URLs with real, legally and technically accessible
+# endpoints before running in live mode. Each source_key maps to a replay
+# fixture at app/fixtures/global/<source_key>.html.
+source_sets:
+  outdoor_global_default:
+    category: outdoor retail
+    global_sources:
+      - key: global_retailer_primary
+        adapter: configurable_listing
+        source_type: retailer
+        market: US
+        credibility: 85
+        default_currency: USD
+        selectors:
+          item: "li.product-card"
+          product_name: ".product-card__title"
+          brand: ".product-card__brand"
+          price: ".product-card__price"
+          product_url: "a.product-card__link@href"
+          image_url: "img@src"
+          new_arrival_badge: ".badge--new"
+        urls:
+          - https://example.com/new-arrivals
+      - key: global_corroborating_source
+        adapter: generic_jsonld
+        source_type: publication
+        market: EU
+        credibility: 70
+        urls:
+          - https://example.org/outdoor-products
+    swiss_retailers:
+      - transa
+      - galaxus

@@ -1,0 +1,107 @@
+[
+  {
+    "retailer": "transa",
+    "title": "City Camping Folding Chair",
+    "brand": "Helinox",
+    "price_value": 99,
+    "currency": "CHF",
+    "availability": "InStock",
+    "usage_occasion": "city camping",
+    "product_url": "https://www.transa.ch/p/city-camping-chair-helinox"
+  },
+  {
+    "retailer": "transa",
+    "title": "Urban Camping Chair Compact",
+    "brand": "Robens",
+    "price_value": 75,
+    "currency": "CHF",
+    "availability": "InStock",
+    "usage_occasion": "city camping",
+    "product_url": "https://www.transa.ch/p/urban-camping-chair-robens"
+  },
+  {
+    "retailer": "galaxus",
+    "title": "City Camping Chair Lightweight",
+    "brand": "Coleman",
+    "price_value": 45,
+    "currency": "CHF",
+    "availability": "InStock",
+    "usage_occasion": "city camping",
+    "product_url": "https://www.galaxus.ch/p/city-camping-chair-coleman"
+  },
+  {
+    "retailer": "galaxus",
+    "title": "Urban Camping Chair Pro",
+    "brand": "Decathlon",
+    "price_value": 39,
+    "currency": "CHF",
+    "availability": "InStock",
+    "usage_occasion": "city camping",
+    "product_url": "https://www.galaxus.ch/p/urban-camping-chair-decathlon"
+  },
+  {
+    "retailer": "transa",
+    "title": "City Camping Chair Deluxe",
+    "brand": "Nemo",
+    "price_value": 130,
+    "currency": "CHF",
+    "availability": "InStock",
+    "usage_occasion": "city camping",
+    "product_url": "https://www.transa.ch/p/city-camping-chair-nemo"
+  },
+  {
+    "retailer": "galaxus",
+    "title": "Urban Camping Chair Basic",
+    "brand": "Outwell",
+    "price_value": 29,
+    "currency": "CHF",
+    "availability": "InStock",
+    "usage_occasion": "city camping",
+    "product_url": "https://www.galaxus.ch/p/urban-camping-chair-outwell"
+  },
+
+  {
+    "retailer": "transa",
+    "title": "PFAS-free Waterproof Rain Jacket",
+    "brand": "Vaude",
+    "price_value": 229,
+    "currency": "CHF",
+    "availability": "InStock",
+    "features": ["pfas free", "waterproof"],
+    "product_url": "https://www.transa.ch/p/pfas-free-rain-jacket-vaude"
+  },
+  {
+    "retailer": "galaxus",
+    "title": "PFC-free Hardshell Waterproof Jacket",
+    "brand": "Patagonia",
+    "price_value": 299,
+    "currency": "CHF",
+    "availability": "InStock",
+    "features": ["pfc free", "waterproof"],
+    "product_url": "https://www.galaxus.ch/p/pfc-free-hardshell-patagonia"
+  },
+
+  {
+    "retailer": "galaxus",
+    "title": "Kids UPF 50 Sun Hoodie",
+    "brand": "Columbia",
+    "price_value": 49,
+    "currency": "CHF",
+    "availability": "InStock",
+    "features": ["upf 50", "sun protection"],
+    "target_customer": "kids",
+    "product_url": "https://www.galaxus.ch/p/kids-upf-sun-hoodie-columbia"
+  },
+
+  {
+    "retailer": "transa",
+    "title": "Insect-Mesh Hiking Trousers",
+    "brand": "Mammut",
+    "price_value": 159,
+    "currency": "CHF",
+    "availability": "InStock",
+    "features": ["insect mesh"],
+    "usage_occasion": "trail hiking",
+    "product_url": "https://www.transa.ch/p/insect-mesh-hiking-trousers-mammut"
+  }
+]

@@ -1,0 +1,100 @@
+# Swiss market profile. Transparent rules and mappings — no hidden judgement.
+# Each transferability factor matches an opportunity's tokens (product type,
+# features, materials, customer, usage, name) against the `match` terms of its
+# categories and applies the configured score + rationale. No match -> the
+# factor is reported as unknown with a neutral default.
+version: market-ch-1.0.0
+
+climate:
+  alpine_sun_protection:
+    match: ["upf", "sun protection", "alpine", "sun"]
+    score: 85
+    confidence: high
+    rationale: "Relevant to high-altitude outdoor exposure in the Swiss Alps."
+    limitations: "Based on general alpine climate, not store-level demand data."
+  general_outdoor:
+    match: ["hiking", "trail", "waterproof", "rain", "trekking"]
+    score: 70
+    confidence: medium
+    rationale: "Broad fit with Swiss three-season outdoor conditions."
+  urban_city_camping:
+    match: ["city camping", "urban", "city"]
+    score: 35
+    confidence: medium
+    rationale: "Limited direct fit with the core Swiss outdoor use case."
+
+geography:
+  alpine_terrain:
+    match: ["hiking", "trail", "alpine", "mountain", "trekking"]
+    score: 80
+    confidence: high
+    rationale: "Switzerland is dominated by alpine and pre-alpine terrain."
+  urban:
+    match: ["city", "urban", "camping"]
+    score: 45
+    confidence: medium
+    rationale: "Urban-only use cases address a smaller Swiss outdoor segment."
+
+customer_use:
+  families_children:
+    match: ["children", "kids", "family", "junior"]
+    score: 75
+    confidence: medium
+    rationale: "Family outdoor activity is well established in Switzerland."
+  general_outdoor_user:
+    match: ["hiking", "trail", "alpine", "trekking"]
+    score: 70
+    confidence: medium
+    rationale: "Large, active general outdoor customer base."
+  niche_urban:
+    match: ["city", "urban"]
+    score: 45
+    confidence: low
+    rationale: "Narrower customer overlap with the core outdoor buyer."
+
+regulatory_flags:
+  chemically_treated_textiles:
+    match: ["insect", "tick", "permethrin", "biocide", "insecticide"]
+    default_score: 45
+    requires_review: true
+    rationale: "Insecticide-treated textiles face EU/CH biocide labelling rules."
+
+regulatory_default_score: 85
+
+price_fit:
+  acceptable_min: 20
+  acceptable_max: 400
+  currency: CHF
+
+seasonality:
+  three_season:
+    match: ["hiking", "trail", "waterproof", "rain"]
+    score: 80
+    confidence: medium
+    rationale: "Three-season relevance across most of the Swiss outdoor calendar."
+  summer_sun:
+    match: ["upf", "sun"]
+    score: 60
+    confidence: medium
+    rationale: "Sun-protection demand concentrates in the summer season."
+  winter_alpine:
+    match: ["alpine", "insulated", "winter"]
+    score: 70
+    confidence: medium
+    rationale: "Alpine winter demand is meaningful but seasonal."
+
+# Localized retail vocabulary used to generate Swiss search terms. Keyed by the
+# canonical normalized feature/material value.
+retail_vocabulary:
+  insect-protection:
+    - { term: "Zeckenschutz Kleidung", language: de }
+    - { term: "Insektenschutz Wanderhose", language: de }
+    - { term: "NosiLife", language: en }
+  UPF sun protection:
+    - { term: "UV-Schutz Kleidung", language: de }
+    - { term: "Sonnenschutz Shirt", language: de }
+  PFAS-free:
+    - { term: "PFC-frei Regenjacke", language: de }
+    - { term: "PFAS-frei", language: de }
+  merino wool:
+    - { term: "Merinowolle", language: de }

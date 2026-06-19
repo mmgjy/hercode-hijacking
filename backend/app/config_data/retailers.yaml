@@ -1,0 +1,35 @@
+# Configured Swiss retailer definitions. One generic Swiss adapter handles all of
+# them; per-retailer behaviour is config (selectors / scan URLs), not code.
+# Each retailer key maps to a replay fixture at app/fixtures/swiss/<key>.html.
+retailers:
+  - key: transa
+    name: Transa
+    domain: transa.ch
+    market: CH
+    adapter: swiss_retailer
+    active: true
+    default_currency: CHF
+    selectors:
+      item: "li.product-card"
+      product_name: ".product-card__title"
+      brand: ".product-card__brand"
+      price: ".product-card__price"
+      product_url: "a@href"
+    scan_urls:
+      - https://www.transa.ch/search
+
+  - key: galaxus
+    name: Galaxus
+    domain: galaxus.ch
+    market: CH
+    adapter: swiss_retailer
+    active: true
+    default_currency: CHF
+    selectors:
+      item: "article.product"
+      product_name: ".product__name"
+      brand: ".product__brand"
+      price: ".product__price"
+      product_url: "a@href"
+    scan_urls:
+      - https://www.galaxus.ch/search

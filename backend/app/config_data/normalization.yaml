@@ -1,0 +1,114 @@
+# Normalization dictionaries. Format: canonical -> [synonyms].
+# Synonyms are matched after lowercasing, de-punctuation and singularization.
+product_types:
+  hiking trousers:
+    - hiking pants
+    - trail trousers
+    - trail pants
+    - trekking pants
+    - wanderhose
+  hooded shirt:
+    - hoodie
+    - hooded top
+    - sun hoodie
+  waterproof shell:
+    - rain shell
+    - hardshell jacket
+    - waterproof jacket
+    - rain jacket
+    - regenjacke
+  sleep system:
+    - sleeping bag
+    - quilt
+    - sleep setup
+  base layer:
+    - baselayer
+    - underlayer
+
+features:
+  insect-protection:
+    - insect protection
+    - tick protection
+    - tick resistant
+    - bug protection
+    - anti tick
+    - zeckenschutz
+    - insektenschutz
+    - nosilife
+  UPF sun protection:
+    - upf
+    - upf 50
+    - sun protection
+    - solar protection
+    - uv protection
+    - sonnenschutz
+  PFAS-free:
+    - pfas free
+    - pfc free
+    - pfas-free
+    - pfc-free
+    - fluorocarbon free
+  ultralight:
+    - ultra light
+    - ultra-light
+    - superlight
+    - lightweight
+  waterproof:
+    - water proof
+    - wasserdicht
+    - water resistant
+
+materials:
+  merino wool:
+    - merino
+    - wool merino
+  recycled polyester:
+    - recycled poly
+    - rpet
+  ripstop nylon:
+    - ripstop
+    - nylon ripstop
+
+customer_segments:
+  children:
+    - kids
+    - kid
+    - child
+    - junior
+    - youth
+  women:
+    - woman
+    - female
+    - womens
+  men:
+    - man
+    - male
+    - mens
+
+usage_occasions:
+  alpine hiking:
+    - alpine
+    - mountaineering
+    - high altitude
+    - alpine hiking
+  trail hiking:
+    - hiking
+    - trail
+    - trekking
+  city camping:
+    - urban camping
+    - city camping
+    - urban outdoor
+
+currencies:
+  USD: USD
+  EUR: EUR
+  CHF: CHF
+  GBP: GBP
+
+brands:
+  Fjällräven:
+    - fjallraven
+    - fjall raven
+  Patagonia:
+    - patagonia
