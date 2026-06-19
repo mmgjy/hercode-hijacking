@@ -3,9 +3,9 @@
 ## Team
 
 - Team name: Hijacking
-- Team members: _add names_
-- GitHub fork URL: _add fork URL_
-- Demo URL, if any: runs locally (offline demo mode)
+- Team members: Sumaya Mohat, Meryem Ghrairi, Maria Kinga Zielinska
+- GitHub fork URL: https://github.com/mmgjy/hercode-hijacking.git
+- Demo URL, if any: https://lovable.dev/preview/HpO7TmTIL6VR5KqQyDQuJLN1Zz7hKEI6
 - Video walkthrough URL, if any: _optional_
 
 ## Challenge problem
@@ -41,6 +41,14 @@ offline; replay mode is deterministic; live mode is SSRF-guarded.
 
 ## How to run
 
+### frontend
+```bash
+cd frontend
+npm run install
+npm run dev
+```
+
+### backend
 ```bash
 cd backend
 python3.11 -m venv .venv && source .venv/bin/activate
