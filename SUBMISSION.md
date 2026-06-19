@@ -6,7 +6,7 @@
 - Team members: Sumaya Mohat, Meryem Ghrairi, Maria Kinga Zielinska
 - GitHub fork URL: https://github.com/mmgjy/hercode-hijacking.git
 - Demo URL, if any: https://lovable.dev/preview/HpO7TmTIL6VR5KqQyDQuJLN1Zz7hKEI6
-- Video walkthrough URL, if any: _optional_
+- Video walkthrough URL, if any: https://polybox.ethz.ch/index.php/s/9NrWskpsewCdLam
 
 ## Challenge problem
 
