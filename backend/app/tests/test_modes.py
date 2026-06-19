@@ -36,11 +36,12 @@ def test_demo_reset_endpoint(client):
     r1 = client.post("/api/demo/reset")
     assert r1.status_code == 200
     body = r1.json()
-    assert body["run_status"] == "completed"
-    assert body["opportunity_count"] >= 3
+    assert body["ok"] is True
+    run_id = body["discoveryRunId"]
+    opps = client.get(f"/api/discovery-runs/{run_id}/opportunities").json()
+    assert len(opps) >= 3
     # Idempotent: a second reset wipes and rebuilds cleanly.
-    r2 = client.post("/api/demo/reset")
-    assert r2.status_code == 200
+    assert client.post("/api/demo/reset").status_code == 200
 
 
 def test_live_failure_does_not_fabricate(db):

@@ -52,24 +52,15 @@ def create_app() -> FastAPI:
     async def app_error_handler(request: Request, exc: AppError) -> JSONResponse:
         return JSONResponse(status_code=exc.status_code, content=exc.to_dict())
 
-    # Routers
-    from app.api import (
-        demo,
-        discovery_runs,
-        exports,
-        health,
-        opportunities,
-        scan_items,
-        source_sets,
-    )
+    # Routers. The frontend-facing contract router serves the camelCase API the
+    # Lovable frontend expects on /api/*. The snake_case routers
+    # (source_sets/discovery_runs/opportunities/scan_items/demo) were the initial
+    # internal contract and are superseded by app/api/contract.py.
+    from app.api import contract, exports, health
 
     app.include_router(health.router)
-    app.include_router(source_sets.router)
-    app.include_router(discovery_runs.router)
-    app.include_router(opportunities.router)
-    app.include_router(scan_items.router)
+    app.include_router(contract.router)
     app.include_router(exports.router)
-    app.include_router(demo.router)
 
     return app
 

@@ -30,6 +30,7 @@ def test_lookback_bounds():
 
 
 def test_create_run_rejects_unknown_source_set(client):
-    resp = client.post("/api/discovery-runs", json={"source_set": "nope", "mode": "demo"})
+    # Frontend contract uses camelCase `sourceSetId`.
+    resp = client.post("/api/discovery-runs", json={"sourceSetId": "nope"})
     assert resp.status_code == 400
     assert resp.json()["error"]["code"] == "INVALID_SOURCE_SET"

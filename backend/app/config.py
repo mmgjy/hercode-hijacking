@@ -51,6 +51,12 @@ class Settings(BaseSettings):
     # Optional shared secret. When set, mutating endpoints require X-API-Key.
     API_KEY: str | None = None
 
+    # Discovery mode used when the frontend starts a run (its input has no mode).
+    # The Lovable frontend only knows "demo" / "live"; we default backend runs to
+    # the seeded "demo" pipeline so the live HTTP integration returns rich data
+    # without real source URLs. Set to "replay" or "live" to change this.
+    BACKEND_DISCOVERY_MODE: str = "demo"
+
     @property
     def allowed_origins_list(self) -> list[str]:
         if self.ALLOWED_ORIGINS.strip() == "*":
