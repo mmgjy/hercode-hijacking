@@ -44,8 +44,9 @@ offline; replay mode is deterministic; live mode is SSRF-guarded.
 ### frontend
 ```bash
 cd frontend
-npm run install
-npm run dev
+npm install
+cp .env.example .env          # then set VITE_API_BASE_URL=http://localhost:8000
+npm run dev                   # opens http://localhost:5173
 ```
 
 ### backend
@@ -53,10 +54,10 @@ npm run dev
 cd backend
 python3.11 -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
-cp .env.example .env
-alembic upgrade head            # or rely on SQLite auto-create for the demo
-uvicorn app.main:app --reload   # docs at http://localhost:8000/docs
-pytest -q                       # 62 tests, offline & deterministic
+cp .env.example .env          # SQLite works as-is for the demo; set DATABASE_URL for Postgres/Supabase
+alembic upgrade head          # or rely on SQLite auto-create for the demo
+uvicorn app.main:app --reload # docs at http://localhost:8000/docs
+pytest -q                     # 62 tests, offline & deterministic
 ```
 
 Offline demo:
