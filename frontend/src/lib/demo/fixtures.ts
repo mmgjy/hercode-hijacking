@@ -1,0 +1,676 @@
+import type {
+  DiscoveryRun,
+  EvidenceRecord,
+  OpportunityDetail,
+  OpportunitySummary,
+  RetailerCoverage,
+  ScanItem,
+  SourceSet,
+  SourceStatus,
+} from "../api/types";
+
+const NOW = "2026-06-19T09:00:00Z";
+
+export const demoSourceSets: SourceSet[] = [
+  {
+    id: "outdoor-global-default",
+    name: "Outdoor global default",
+    description: "Curated global outdoor retail, marketplace and trade sources.",
+    scope: "global",
+    sourceCount: 9,
+  },
+  {
+    id: "outdoor-eu",
+    name: "Outdoor Europe focus",
+    description: "European outdoor retailers and specialist publications.",
+    scope: "global",
+    sourceCount: 6,
+  },
+  {
+    id: "materials-watch",
+    name: "Technical materials watch",
+    description: "Material innovation and regulatory sources for technical apparel.",
+    scope: "global",
+    sourceCount: 5,
+  },
+];
+
+export const demoRun: DiscoveryRun = {
+  id: "run_demo_0421",
+  mode: "demo",
+  status: "complete",
+  startedAt: NOW,
+  sourceSetId: "outdoor-global-default",
+  sourceSetName: "Outdoor global default",
+  category: "Outdoor retail",
+  targetMarket: "Switzerland",
+  rawSignals: 1184,
+  normalizedSignals: 612,
+  clusters: 4,
+  warnings: ["1 source returned partial data (rate limited): trade-press-feed"],
+  stages: [
+    { key: "collect", label: "Collecting global product signals", status: "complete", detail: "1184 raw signals from 9 sources" },
+    { key: "extract", label: "Extracting products, features, brands, and materials", status: "complete", detail: "612 normalized signals" },
+    { key: "dedupe", label: "Removing duplicates", status: "complete", detail: "572 duplicates removed" },
+    { key: "cluster", label: "Creating opportunity clusters", status: "complete", detail: "4 clusters created" },
+    { key: "markets", label: "Identifying strongest observed markets", status: "complete" },
+    { key: "swiss", label: "Scanning Swiss competitor coverage", status: "partial", detail: "1 retailer scan pending review" },
+    { key: "score", label: "Calculating recommendations", status: "complete" },
+  ],
+};
+
+export const demoOpportunities: OpportunitySummary[] = [
+  {
+    id: "opp_tick",
+    runId: demoRun.id,
+    rank: 1,
+    name: "Tick-protection hiking clothing",
+    strongestMarket: "Germany",
+    globalSignal: 82,
+    swissFit: 88,
+    swissCoverage: "partial",
+    opportunityScore: 79,
+    confidence: 71,
+    action: "TEST",
+    mainMissingEvidence: "Internal margin data",
+    discoveryStatus: "complete",
+    origin: "DEMO",
+  },
+  {
+    id: "opp_upf",
+    runId: demoRun.id,
+    rank: 2,
+    name: "Lightweight UPF alpine clothing for children",
+    strongestMarket: "Austria",
+    globalSignal: 74,
+    swissFit: 81,
+    swissCoverage: "partial",
+    opportunityScore: 68,
+    confidence: 64,
+    action: "RESEARCH",
+    mainMissingEvidence: "Supplier access unknown",
+    discoveryStatus: "complete",
+    origin: "DEMO",
+  },
+  {
+    id: "opp_pfas",
+    runId: demoRun.id,
+    rank: 3,
+    name: "PFAS-free waterproof hiking shells",
+    strongestMarket: "Sweden",
+    globalSignal: 88,
+    swissFit: 76,
+    swissCoverage: "well-covered",
+    opportunityScore: 61,
+    confidence: 78,
+    action: "MONITOR",
+    mainMissingEvidence: "Local category already well covered",
+    discoveryStatus: "complete",
+    origin: "DEMO",
+  },
+  {
+    id: "opp_camp",
+    runId: demoRun.id,
+    rank: 4,
+    name: "Compact modular camping systems",
+    strongestMarket: "Japan",
+    globalSignal: 69,
+    swissFit: 58,
+    swissCoverage: "partial",
+    opportunityScore: 47,
+    confidence: 52,
+    action: "CONTACT",
+    mainMissingEvidence: "Regulatory treatment requires verification",
+    discoveryStatus: "complete",
+    origin: "DEMO",
+  },
+];
+
+const ts = "2026-06-19T08:42:00Z";
+
+function detailFor(s: OpportunitySummary): OpportunityDetail {
+  return {
+    ...s,
+    productCategory: "Technical outdoor apparel",
+    earliestMarket: "Germany",
+    decisionSummary:
+      s.action === "TEST"
+        ? "The global signal is credible and the product fits Swiss outdoor use cases. Swiss assortment coverage is partial and the evidence supports a controlled retail test."
+        : s.action === "RESEARCH"
+          ? "The global signal is credible and the product fits Swiss outdoor use cases. Swiss assortment coverage is partial, but the evidence is not yet strong enough for a full test. Research supplier access and regulatory requirements."
+          : s.action === "MONITOR"
+            ? "The global signal is strong but Swiss retailers already cover this category well. Continue monitoring rather than acting now."
+            : "The signal is emerging and the supplier and regulatory picture is unclear. Contact suppliers to assess access before deciding.",
+    scoreBreakdown: [
+      { key: "momentum", label: "Global momentum", value: s.globalSignal, origin: "CALCULATED", explanation: "Weighted volume and recency of supporting signals.", calculatedAt: ts },
+      { key: "breadth", label: "Evidence breadth", value: Math.max(40, s.confidence - 5), origin: "CALCULATED", explanation: "Number of independent sources and markets represented.", calculatedAt: ts },
+      { key: "transfer", label: "Swiss transferability", value: s.swissFit, origin: "CALCULATED", explanation: "Fit against the Swiss market profile.", calculatedAt: ts },
+      { key: "gap", label: "Local assortment gap", value: s.swissCoverage === "none" ? 90 : s.swissCoverage === "partial" ? 62 : 28, origin: "CALCULATED", explanation: "Inverse of approved Swiss product coverage.", calculatedAt: ts },
+      { key: "feasibility", label: "Commercial feasibility", value: Math.max(35, s.opportunityScore - 8), origin: "CALCULATED", explanation: "Price fit, seasonality and supplier signals.", calculatedAt: ts },
+    ],
+    confidenceBreakdown: [
+      { key: "credibility", label: "Source credibility", value: s.confidence + 6, origin: "CALCULATED", explanation: "Average credibility weight of contributing sources.", calculatedAt: ts },
+      { key: "diversity", label: "Source diversity", value: Math.max(30, s.confidence - 10), origin: "CALCULATED", explanation: "Spread across source types and markets.", calculatedAt: ts },
+      { key: "freshness", label: "Freshness", value: 70, origin: "CALCULATED", explanation: "Recency of supporting evidence.", calculatedAt: ts },
+      { key: "completeness", label: "Data completeness", value: s.confidence - 4, origin: "CALCULATED", explanation: "Share of records with full normalized fields.", calculatedAt: ts },
+    ],
+    rationale: {
+      rawSignals: 146,
+      independentSources: 7,
+      markets: ["Germany", "Austria", "Sweden", "United Kingdom"],
+      brands: ["Schöffel", "Vaude", "Jack Wolfskin", "Fjällräven"],
+      products: ["Treated trousers", "Permethrin shirts", "Tick-resistant socks"],
+      firstObserved: "2026-03-02",
+      latestObserved: "2026-06-15",
+      dominantProductType: "Treated technical trousers",
+      dominantFeatures: ["Insect-repellent treatment", "Abrasion resistance", "Quick-dry"],
+      dominantMaterials: ["Permethrin-treated nylon", "Recycled polyamide"],
+      dominantSegment: "Adult hikers, families",
+      dominantOccasion: "Spring/summer hiking and trail use",
+      groupingExplanation:
+        "Records were clustered because their normalized product type, treatment feature and use case overlapped above the clustering threshold.",
+      matchedTerms: ["tick", "insect repellent", "permethrin", "hiking", "trousers"],
+    },
+    transferability: [
+      { key: "climate", label: "Climate relevance", value: 86, reason: "Swiss spring/summer tick exposure is comparable to southern Germany.", basis: "Swiss market profile", confidence: 70, limitations: "Regional variation not modelled.", heuristic: true },
+      { key: "geographic", label: "Geographic relevance", value: 84, reason: "Large alpine and forest hiking population.", basis: "Swiss market profile", confidence: 72, limitations: "", heuristic: true },
+      { key: "customer", label: "Customer fit", value: 80, reason: "Strong family and adult hiking segments.", basis: "Swiss market profile", confidence: 66, limitations: "", heuristic: true },
+      { key: "regulatory", label: "Regulatory fit", value: 58, reason: "Biocide treatment claims require verification under Swiss rules.", basis: "Regulatory heuristic", confidence: 48, limitations: "Not legally verified.", heuristic: true },
+      { key: "price", label: "Price fit", value: 74, reason: "Observed price band aligns with Swiss premium outdoor.", basis: "Swiss market profile", confidence: 60, limitations: "", heuristic: true },
+      { key: "seasonality", label: "Seasonality", value: 64, reason: "Concentrated selling window (spring to early autumn).", basis: "Swiss market profile", confidence: 62, limitations: "", heuristic: true },
+    ],
+    risks: {
+      counterSignals: ["One UK source reported saturation in entry-level treated trousers."],
+      risks: ["Short selling season", "Treatment claims may need certification"],
+      missingEvidence: ["Internal margin data", "Confirmed supplier lead times"],
+      internalDataRequired: ["Category margin history", "Existing supplier contracts"],
+      extractionLimitations: ["2 marketplace prices were estimated from ranges"],
+    },
+    recommendation: {
+      action: s.action,
+      triggeredRule:
+        s.action === "TEST"
+          ? "High momentum + partial coverage + acceptable confidence → TEST"
+          : s.action === "RESEARCH"
+            ? "Credible signal + supplier uncertainty → RESEARCH"
+            : s.action === "MONITOR"
+              ? "Strong signal but high local coverage → MONITOR"
+              : "Emerging signal + regulatory uncertainty → CONTACT",
+      rationale: "Derived by the backend decision engine from the score and confidence breakdown.",
+      supportingEvidence: ["Repeated signals across 7 independent sources", "Partial Swiss coverage indicates an assortment gap"],
+      preventingEvidence: ["No internal margin data", "Regulatory treatment unverified"],
+      nextStep:
+        s.action === "TEST"
+          ? "Define a limited in-store and online test with two retailers."
+          : "Open supplier and regulatory research before committing to a test.",
+      origin: "CALCULATED",
+      complete: true,
+    },
+    testPlan:
+      s.action === "TEST"
+        ? {
+            productScope: "Treated technical hiking trousers (adult, 2 colourways)",
+            unitRange: "120–200 units",
+            channel: "Two flagship stores + online category page",
+            duration: "8 weeks (spring season)",
+            targetCustomer: "Adult and family hikers",
+            primaryMetric: "Sell-through rate",
+            secondaryMetrics: ["Return rate", "Attach rate to socks", "Online add-to-cart rate"],
+            successThreshold: "Sell-through ≥ 55% within 8 weeks",
+            stopCondition: "Return rate > 15% or sell-through < 20% at week 4",
+            assumptions: ["Supplier can deliver within 6 weeks", "Treatment claims acceptable for retail use"],
+          }
+        : undefined,
+  };
+}
+
+export const demoOpportunityDetails: Record<string, OpportunityDetail> = Object.fromEntries(
+  demoOpportunities.map((o) => [o.id, detailFor(o)]),
+);
+
+export function demoEvidence(oppId: string): EvidenceRecord[] {
+  return [
+    {
+      id: `${oppId}_ev1`,
+      source: "Outdoor Trade Weekly",
+      sourceType: "Trade press",
+      market: "Germany",
+      date: "2026-06-12",
+      signal: "Treated tick-protection trousers expanded SS26 line",
+      brand: "Schöffel",
+      featureOrMaterial: "Permethrin-treated nylon",
+      price: "CHF 159",
+      direction: "supporting",
+      credibility: 84,
+      origin: "DEMO",
+      url: "https://example.com/outdoor-trade/tick-trousers",
+      rawTitle: "Schöffel expands insect-protection hiking range",
+      rawDescription: "The brand reports growing demand for treated trousers across DACH retail.",
+      normalizedProductType: "Treated technical trousers",
+      normalizedFeatures: ["Insect-repellent treatment", "Quick-dry"],
+      matchedTerms: ["tick", "permethrin", "trousers"],
+      limitations: "Price taken from regional listing.",
+      artifactRef: "snapshot://demo/ev1.html",
+    },
+    {
+      id: `${oppId}_ev2`,
+      source: "EU Marketplace Index",
+      sourceType: "Marketplace",
+      market: "Austria",
+      date: "2026-05-29",
+      signal: "Rising search and listing volume for tick-resistant apparel",
+      brand: "Vaude",
+      featureOrMaterial: "Insect-repellent treatment",
+      price: "CHF 139",
+      direction: "supporting",
+      credibility: 72,
+      origin: "DEMO",
+      url: "https://example.com/marketplace/tick-apparel",
+      rawTitle: "Tick-resistant hiking apparel listing growth",
+      rawDescription: "Marketplace listings grew quarter over quarter in the apparel category.",
+      normalizedProductType: "Treated technical trousers",
+      normalizedFeatures: ["Insect-repellent treatment"],
+      matchedTerms: ["tick", "hiking"],
+      limitations: "Aggregated listing data, not unit sales.",
+      artifactRef: "snapshot://demo/ev2.html",
+    },
+    {
+      id: `${oppId}_ev3`,
+      source: "Trail Gear Review UK",
+      sourceType: "Editorial",
+      market: "United Kingdom",
+      date: "2026-04-18",
+      signal: "Entry-level treated trousers reaching saturation",
+      brand: "Multiple",
+      featureOrMaterial: "Permethrin treatment",
+      price: "CHF 89",
+      direction: "counter",
+      credibility: 68,
+      origin: "DEMO",
+      url: "https://example.com/trailgear/saturation",
+      rawTitle: "Is the treated-trouser market getting crowded?",
+      rawDescription: "Editorial notes heavy competition at entry price points in the UK.",
+      normalizedProductType: "Treated technical trousers",
+      normalizedFeatures: ["Insect-repellent treatment"],
+      matchedTerms: ["tick", "trousers"],
+      limitations: "Opinion piece, single market.",
+      artifactRef: "snapshot://demo/ev3.html",
+    },
+  ];
+}
+
+export function demoCoverage(_oppId: string): RetailerCoverage[] {
+  return [
+    {
+      id: "cov_galaxus",
+      retailer: "Galaxus",
+      approvedMatches: 2,
+      pendingMatches: 1,
+      rejectedMatches: 0,
+      brands: ["Schöffel", "Vaude"],
+      priceRange: "CHF 119–169",
+      relevantFeatures: ["Insect treatment", "Quick-dry"],
+      availability: "In stock",
+      scanStatus: "complete",
+      scanDate: "2026-06-18",
+      origin: "DEMO",
+    },
+    {
+      id: "cov_transa",
+      retailer: "Transa",
+      approvedMatches: 1,
+      pendingMatches: 0,
+      rejectedMatches: 1,
+      brands: ["Fjällräven"],
+      priceRange: "CHF 149–199",
+      relevantFeatures: ["Abrasion resistance"],
+      availability: "Limited",
+      scanStatus: "complete",
+      scanDate: "2026-06-18",
+      origin: "DEMO",
+    },
+    {
+      id: "cov_decathlon",
+      retailer: "Decathlon Switzerland",
+      approvedMatches: 0,
+      pendingMatches: 2,
+      rejectedMatches: 0,
+      brands: ["Forclaz"],
+      priceRange: "CHF 39–69",
+      relevantFeatures: ["Basic treatment"],
+      availability: "In stock",
+      scanStatus: "partial",
+      scanDate: "2026-06-19",
+      origin: "MANUAL REVIEW",
+    },
+    {
+      id: "cov_ochsner",
+      retailer: "Ochsner Sport",
+      approvedMatches: 0,
+      pendingMatches: 0,
+      rejectedMatches: 0,
+      brands: [],
+      priceRange: "—",
+      relevantFeatures: [],
+      availability: "Not found",
+      scanStatus: "complete",
+      scanDate: "2026-06-18",
+      origin: "DEMO",
+    },
+  ];
+}
+
+export function demoScanItems(oppId: string): ScanItem[] {
+  return [
+    {
+      id: `${oppId}_si1`,
+      productName: "Forclaz MT100 Insect-Protect Trousers",
+      brand: "Forclaz",
+      price: "CHF 59",
+      features: ["Basic insect treatment", "Quick-dry"],
+      retailer: "Decathlon Switzerland",
+      productUrl: "https://example.com/decathlon/mt100",
+      matchScore: 64,
+      matchedKeywords: ["insect", "trousers"],
+      extractionOrigin: "MANUAL REVIEW",
+      reviewStatus: "pending",
+    },
+    {
+      id: `${oppId}_si2`,
+      productName: "Forclaz Trek Anti-Tick Legging",
+      brand: "Forclaz",
+      price: "CHF 49",
+      features: ["Treatment", "Stretch"],
+      retailer: "Decathlon Switzerland",
+      productUrl: "https://example.com/decathlon/anti-tick",
+      matchScore: 58,
+      matchedKeywords: ["tick"],
+      extractionOrigin: "MANUAL REVIEW",
+      reviewStatus: "pending",
+    },
+    {
+      id: `${oppId}_si3`,
+      productName: "Vaude Farley Stretch Pants",
+      brand: "Vaude",
+      price: "CHF 129",
+      features: ["Insect treatment", "Abrasion resistance"],
+      retailer: "Galaxus",
+      productUrl: "https://example.com/galaxus/farley",
+      matchScore: 71,
+      matchedKeywords: ["insect", "hiking"],
+      extractionOrigin: "MANUAL REVIEW",
+      reviewStatus: "pending",
+    },
+  ];
+}
+
+export const demoSources: SourceStatus[] = [
+  { id: "src_otw", name: "Outdoor Trade Weekly", sourceType: "Trade press", geography: "DACH", domain: "outdoor-trade.example.com", scope: "global", active: true, lastSuccess: "2026-06-18T22:10:00Z", lastError: null, supportedMode: "live, replay", signalsCollected: 312 },
+  { id: "src_eumi", name: "EU Marketplace Index", sourceType: "Marketplace", geography: "EU", domain: "eu-market.example.com", scope: "global", active: true, lastSuccess: "2026-06-19T06:30:00Z", lastError: null, supportedMode: "live, replay", signalsCollected: 488 },
+  { id: "src_tgr", name: "Trail Gear Review UK", sourceType: "Editorial", geography: "UK", domain: "trailgear.example.com", scope: "global", active: true, lastSuccess: "2026-06-17T18:00:00Z", lastError: null, supportedMode: "live", signalsCollected: 96 },
+  { id: "src_tpf", name: "Trade Press Feed", sourceType: "Aggregator", geography: "Global", domain: "tradepress.example.com", scope: "global", active: true, lastSuccess: "2026-06-19T07:00:00Z", lastError: "Rate limited (429) on last attempt", supportedMode: "live, replay", signalsCollected: 174 },
+  { id: "src_galaxus", name: "Galaxus", sourceType: "Retailer catalogue", geography: "Switzerland", domain: "galaxus.ch", scope: "swiss", active: true, lastSuccess: "2026-06-18T20:00:00Z", lastError: null, supportedMode: "live, replay", signalsCollected: 142 },
+  { id: "src_transa", name: "Transa", sourceType: "Retailer catalogue", geography: "Switzerland", domain: "transa.ch", scope: "swiss", active: true, lastSuccess: "2026-06-18T20:05:00Z", lastError: null, supportedMode: "live, replay", signalsCollected: 88 },
+  { id: "src_decathlon", name: "Decathlon Switzerland", sourceType: "Retailer catalogue", geography: "Switzerland", domain: "decathlon.ch", scope: "swiss", active: true, lastSuccess: "2026-06-19T05:40:00Z", lastError: "Partial extraction: 2 items need review", supportedMode: "live", signalsCollected: 61 },
+  { id: "src_ochsner", name: "Ochsner Sport", sourceType: "Retailer catalogue", geography: "Switzerland", domain: "ochsnersport.ch", scope: "swiss", active: false, lastSuccess: null, lastError: "Source disabled by administrator", supportedMode: "replay", signalsCollected: 0 },
+];
+
+// ---- Opportunity Map demo data ----
+
+import type {
+  MapConnection,
+  MapMarket,
+  MapOpportunity,
+  OpportunityMapData,
+} from "../api/types";
+
+const mapOpportunities: MapOpportunity[] = [
+  {
+    id: "opp_pfas",
+    runId: demoRun.id,
+    rank: 1,
+    name: "PFAS-free waterproof shells",
+    strongestMarket: "Japan",
+    earliestMarket: "Japan",
+    globalSignal: 88,
+    swissFit: 82,
+    swissCoverage: "partial",
+    swissGap: 69,
+    opportunityScore: 80,
+    confidence: 91,
+    action: "TEST",
+    mainMissingEvidence: "Internal margin data for premium membranes",
+    mainSupportingEvidence: "Repeated PFAS-free launches across 9 Japanese and Nordic brands",
+    signalCount: 214,
+    sourceCount: 31,
+    marketCount: 5,
+    markets: ["Japan", "Sweden", "Norway", "Germany", "Switzerland"],
+    discoveryStatus: "complete",
+    origin: "DEMO",
+  },
+  {
+    id: "opp_tick",
+    runId: demoRun.id,
+    rank: 2,
+    name: "Tick-protection hiking clothing",
+    strongestMarket: "Germany",
+    earliestMarket: "Germany",
+    globalSignal: 82,
+    swissFit: 88,
+    swissCoverage: "partial",
+    swissGap: 56,
+    opportunityScore: 79,
+    confidence: 84,
+    action: "TEST",
+    mainMissingEvidence: "Confirmed Swiss supplier lead times",
+    mainSupportingEvidence: "Treated-trouser ranges expanding across DACH retail",
+    signalCount: 146,
+    sourceCount: 22,
+    marketCount: 4,
+    markets: ["Germany", "Austria", "United Kingdom", "Switzerland"],
+    discoveryStatus: "complete",
+    origin: "DEMO",
+  },
+  {
+    id: "opp_modular",
+    runId: demoRun.id,
+    rank: 3,
+    name: "Modular camping systems",
+    strongestMarket: "United States",
+    earliestMarket: "United States",
+    globalSignal: 74,
+    swissFit: 61,
+    swissCoverage: "partial",
+    swissGap: 53,
+    opportunityScore: 58,
+    confidence: 67,
+    action: "CONTACT",
+    mainMissingEvidence: "Supplier access and import logistics",
+    mainSupportingEvidence: "Modular shelter systems gaining US specialist coverage",
+    signalCount: 98,
+    sourceCount: 16,
+    marketCount: 3,
+    markets: ["United States", "Germany", "Switzerland"],
+    discoveryStatus: "complete",
+    origin: "DEMO",
+  },
+  {
+    id: "opp_upf",
+    runId: demoRun.id,
+    rank: 4,
+    name: "UPF alpine clothing for children",
+    strongestMarket: "South Korea",
+    earliestMarket: "South Korea",
+    globalSignal: 71,
+    swissFit: 76,
+    swissCoverage: "partial",
+    swissGap: 58,
+    opportunityScore: 64,
+    confidence: 72,
+    action: "RESEARCH",
+    mainMissingEvidence: "Supplier access for certified UPF children's lines",
+    mainSupportingEvidence: "UPF kids' alpine ranges growing in South Korean retail",
+    signalCount: 112,
+    sourceCount: 18,
+    marketCount: 4,
+    markets: ["South Korea", "Austria", "Sweden", "Switzerland"],
+    discoveryStatus: "complete",
+    origin: "DEMO",
+  },
+  {
+    id: "opp_thermal",
+    runId: demoRun.id,
+    rank: 5,
+    name: "Recycled thermal base layers",
+    strongestMarket: "Sweden",
+    earliestMarket: "Norway",
+    globalSignal: 69,
+    swissFit: 70,
+    swissCoverage: "well-covered",
+    swissGap: 31,
+    opportunityScore: 52,
+    confidence: 78,
+    action: "MONITOR",
+    mainMissingEvidence: "Local category already well covered",
+    mainSupportingEvidence: "Recycled-fibre base layers expanding across Nordic brands",
+    signalCount: 87,
+    sourceCount: 14,
+    marketCount: 3,
+    markets: ["Sweden", "Norway", "Switzerland"],
+    discoveryStatus: "complete",
+    origin: "DEMO",
+  },
+];
+
+function ev(
+  source: string,
+  date: string,
+  product: string,
+  brand: string,
+  feature: string,
+  strength: number,
+  direction: MapMarket["evidence"][number]["direction"] = "supporting",
+): MapMarket["evidence"][number] {
+  return {
+    source,
+    date,
+    product,
+    brand,
+    feature,
+    strength,
+    direction,
+    url: `https://example.com/${source.toLowerCase().replace(/[^a-z]+/g, "-")}/${product.toLowerCase().replace(/[^a-z]+/g, "-")}`,
+  };
+}
+
+const mapMarkets: MapMarket[] = [
+  {
+    id: "mk_jp", country: "Japan", lat: 36, lng: 138,
+    signalStrength: 88, confidence: 91, evidenceCount: 64, action: "TEST", isSwiss: false,
+    opportunityIds: ["opp_pfas"],
+    evidence: [
+      ev("Outdoor Japan", "2026-06-10", "PFAS-free rain shell", "Montbell", "Non-fluorinated DWR", 89),
+      ev("Asia Gear Index", "2026-05-22", "Eco hardshell jacket", "Goldwin", "PFC-free membrane", 81),
+    ],
+    origin: "DEMO",
+  },
+  {
+    id: "mk_us", country: "United States", lat: 39, lng: -98,
+    signalStrength: 74, confidence: 67, evidenceCount: 41, action: "CONTACT", isSwiss: false,
+    opportunityIds: ["opp_modular"],
+    evidence: [
+      ev("US Trail Press", "2026-06-04", "Modular shelter kit", "NEMO", "Reconfigurable poles", 78),
+      ev("Outdoor Retailer Feed", "2026-05-18", "Modular camp system", "Big Agnes", "Stackable modules", 70),
+    ],
+    origin: "DEMO",
+  },
+  {
+    id: "mk_kr", country: "South Korea", lat: 36, lng: 127,
+    signalStrength: 71, confidence: 72, evidenceCount: 33, action: "RESEARCH", isSwiss: false,
+    opportunityIds: ["opp_upf"],
+    evidence: [
+      ev("Seoul Outdoor Watch", "2026-06-08", "Kids UPF50 alpine jacket", "K2 Korea", "UPF50+ fabric", 76),
+    ],
+    origin: "DEMO",
+  },
+  {
+    id: "mk_se", country: "Sweden", lat: 60, lng: 15,
+    signalStrength: 69, confidence: 78, evidenceCount: 38, action: "MONITOR", isSwiss: false,
+    opportunityIds: ["opp_thermal", "opp_pfas", "opp_upf"],
+    evidence: [
+      ev("Nordic Gear Journal", "2026-06-01", "Recycled base layer", "Fjällräven", "Recycled merino blend", 80),
+      ev("Nordic Gear Journal", "2026-05-12", "PFAS-free shell", "Haglöfs", "Non-fluorinated DWR", 79),
+    ],
+    origin: "DEMO",
+  },
+  {
+    id: "mk_no", country: "Norway", lat: 61, lng: 8,
+    signalStrength: 64, confidence: 75, evidenceCount: 27, action: "MONITOR", isSwiss: false,
+    opportunityIds: ["opp_thermal", "opp_pfas"],
+    evidence: [
+      ev("Nordic Outdoor Index", "2026-05-28", "Thermal base layer", "Norrøna", "Recycled fibre", 74),
+    ],
+    origin: "DEMO",
+  },
+  {
+    id: "mk_de", country: "Germany", lat: 51, lng: 10,
+    signalStrength: 82, confidence: 84, evidenceCount: 52, action: "TEST", isSwiss: false,
+    opportunityIds: ["opp_tick", "opp_pfas", "opp_modular"],
+    evidence: [
+      ev("Outdoor Trade Weekly", "2026-06-12", "Tick-protection trousers", "Schöffel", "Permethrin treatment", 84),
+      ev("EU Marketplace Index", "2026-05-29", "Tick-resistant apparel", "Vaude", "Insect-repellent treatment", 72),
+    ],
+    origin: "DEMO",
+  },
+  {
+    id: "mk_at", country: "Austria", lat: 47.5, lng: 14,
+    signalStrength: 66, confidence: 70, evidenceCount: 24, action: "RESEARCH", isSwiss: false,
+    opportunityIds: ["opp_tick", "opp_upf"],
+    evidence: [
+      ev("Alpine Retail Review", "2026-05-20", "UPF kids jacket", "Salewa", "UPF50+ fabric", 71),
+    ],
+    origin: "DEMO",
+  },
+  {
+    id: "mk_uk", country: "United Kingdom", lat: 54, lng: -2,
+    signalStrength: 48, confidence: 68, evidenceCount: 19, action: "MONITOR", isSwiss: false,
+    opportunityIds: ["opp_tick"],
+    evidence: [
+      ev("Trail Gear Review UK", "2026-04-18", "Treated trousers", "Multiple", "Permethrin treatment", 68, "counter"),
+    ],
+    origin: "DEMO",
+  },
+  {
+    id: "mk_ch", country: "Switzerland", lat: 46.8, lng: 8.2,
+    signalStrength: 60, confidence: 80, evidenceCount: 36, action: "TEST", isSwiss: true,
+    opportunityIds: ["opp_pfas", "opp_tick", "opp_modular", "opp_upf", "opp_thermal"],
+    evidence: [
+      ev("Galaxus", "2026-06-18", "Tick-protection trousers", "Schöffel", "Insect treatment", 70),
+      ev("Transa", "2026-06-18", "PFAS-free shell", "Fjällräven", "Non-fluorinated DWR", 66),
+    ],
+    origin: "DEMO",
+  },
+];
+
+const mapConnections: MapConnection[] = [
+  { id: "cx_jp_ch", sourceMarket: "Japan", targetMarket: "Switzerland", opportunityId: "opp_pfas", transferabilityScore: 82, swissGapScore: 69 },
+  { id: "cx_us_ch", sourceMarket: "United States", targetMarket: "Switzerland", opportunityId: "opp_modular", transferabilityScore: 64, swissGapScore: 53 },
+  { id: "cx_se_ch", sourceMarket: "Sweden", targetMarket: "Switzerland", opportunityId: "opp_thermal", transferabilityScore: 71, swissGapScore: 31 },
+  { id: "cx_kr_ch", sourceMarket: "South Korea", targetMarket: "Switzerland", opportunityId: "opp_upf", transferabilityScore: 76, swissGapScore: 58 },
+  { id: "cx_de_ch", sourceMarket: "Germany", targetMarket: "Switzerland", opportunityId: "opp_tick", transferabilityScore: 80, swissGapScore: 56 },
+];
+
+export const demoMapData: OpportunityMapData = {
+  opportunities: mapOpportunities,
+  markets: mapMarkets,
+  connections: mapConnections,
+  summary: {
+    totalOpportunities: mapOpportunities.length,
+    totalMarkets: mapMarkets.filter((m) => !m.isSwiss).length + 1,
+    totalSources: 87,
+    highestConfidence: 91,
+    highestSwissGap: 69,
+    strongestOpportunity: { id: "opp_pfas", name: "PFAS-free waterproof shells", confidence: 91 },
+    highestGapOpportunity: { id: "opp_pfas", name: "PFAS-free waterproof shells", swissGap: 69 },
+  },
+};
